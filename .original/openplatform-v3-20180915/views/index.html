@@ -1,0 +1,403 @@
+@{layout('')}
+@{title(config.name)}
+
+<!DOCTYPE html>
+<html class="noscroll">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=10" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
+	<meta name="robots" content="all,follow" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-title" content="@{'%name'}" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="#0A53EA">
+	<meta name="theme-color" content="#0A53EA">
+	<link rel="apple-touch-icon" href="/icon.png" />
+	<link rel="manifest" href="/manifest.json" />
+	<link rel="stylesheet" href="@{'%cdn'}/spa.min@16.css" />
+	<script src="@{'%cdn'}/spa.min@16.js"></script>
+	@{import('meta', 'head', 'default.css', 'default.js', 'favicon.ico')}
+	<script>var user = EMPTYOBJECT</script>
+</head>
+<body data-jc="exec" class="noscroll">
+
+	<div data-jc="shortcuts"></div>
+	<div data-jc="LAZY features__null__placeholder:@(What are you looking for?)"></div>
+	<div data-jc="LAZY contextmenu"></div>
+	<div data-jc="LAZY confirm"></div>
+	<div data-jc="LAZY snackbar"></div>
+	<div data-jc="LAZY contextmenu"></div>
+	<div data-jc="LAZY calendar"></div>
+	<div data-jc="LAZY audio__user.volume"></div>
+	<div data-jc="LAZY message__null__button:@(Close)"></div>
+	<div data-jc="loading" class="hidden"></div>
+	<div data-jc="websocket__null__url:/"></div>
+
+	<header data-bind="user__.header-show:value && value.name">
+		<div class="datetime hidden-xs" data-jc="time"></div>
+
+		<div class="user exec" data-exec="mainmenu" data-bind="common.startmenu__.selected:value">
+			<i class="fa fa-th"></i>
+		</div>
+
+		<nav data-jc="repeater__dashboard.apps">
+			<script type="text/html">
+				<button title="{{ internal.title }}" class="exec appprocess" data-exec="Dashboard/open" data-id="{{ id }}"><b class="appbadge{{ if !internal.countbadges }} hidden{{ fi }}" data-id="{{ id }}"><i class="fa fa-circle"></i></b><i class="fa fa-{{ internal.icon }}"></i><span class="appprogress ap{{ id }}"><span></span></span></button>
+			</script>
+		</nav>
+
+		<div class="user-notifications exec" data-path="common.notifications" data-value="!common.notifications">
+			<span data-bind="user.countnotifications__show:value > 0__html:value > 99 ? 99 : value" class="hidden">0</span>
+			<i class="far fa-bell" data-bind="common.notifications__.fa:!!value__.far:!value"></i>
+		</div>
+
+	</header>
+
+	<div data-jc="notificationspanel__common.notifications" data-bind="common.notifications__show:value" class="hidden">
+		<div class="ui-npanel-clear hidden"><i class="fa fa-trash"></i>@(Remove all notifications)</div>
+		<script type="text/html">
+			<div class="ui-npanel-message{{ if type === 1 }} ui-npanel-success{{ else if type === 2 }} ui-npanel-error{{ fi }}">
+				<div class="ui-npanel-date"><i class="fa fa-clock-o"></i>{{ datecreated | format('yyyy-MM-dd HH:mm') }}</div>
+				<div class="ui-npanel-title"><i class="fa fa-{{ icon }}"></i><b>{{ title }}</b></div>
+				<div class="ui-npanel-padding">
+					<div class="ui-npanel-body">{{ body }}</div>
+					{{ if data }}
+					<button data-data="{{ data | encodedata }}" data-id="{{ idapp }}" class="exec" data-exec="Dashboard/navigate">@(Open app)</button>
+					{{ fi }}
+				</div>
+			</div>
+		</script>
+	</div>
+
+	<div>
+		<div data-jc="processes__dashboard.current__datasource:dashboard.apps"></div>
+	</div>
+
+	<div class="startmenu hidden" data-bind="common.startmenu__exec:togglemenu">
+		<div class="startmenu-title">
+			<button class="exec" data-path="common.startmenuapps" data-value="!value"><i class="fa fa-ellipsis-h"></i></button>
+			<img src="/img/face.jpg" data-bind="user.photo__src:Tangular.helpers.photo(value)" onerror="onImageError(this)" />
+			<span data-bind="user.name__html:value"></span>
+		</div>
+		<div class="startmenu-nav" data-jc="xs__common.startmenuapps__if:!value">
+			<div>
+				<nav>
+					@{if user.sa}
+					<button class="exec internal" data-exec="internalapp" data-id="_users"><i class="fa fa-users"></i>@(Users)</button>
+					<button class="exec internal" data-exec="internalapp" data-id="_apps"><i class="fa fa-rocket"></i>@(Apps)</button>
+					<button class="exec internal" data-exec="internalapp" data-id="_settings"><i class="fa fa-cogs"></i>@(Settings)</button>
+					@{fi}
+					<button class="exec internal" data-exec="internalapp" data-id="_account"><i class="fa fa-cog"></i>@(My account)</button>
+					<button class="exec hidden-xs" data-exec="internalreset"><i class="fa fa-window-restore"></i>@(Reset windows)</button>
+					<button class="exec" data-exec="internallogoff"><i class="fa fa-power-off"></i>@(Sign out)</button>
+				</nav>
+			</div>
+		</div>
+		<div class="startmenu-apps">
+			<div class="startmenu-search">
+				<div data-jc="textbox__common.startmenusearch__type:search;placeholder:@(Search apps)"></div>
+			</div>
+			<div data-jc="search__common.startmenusearch__selector:.app" class="startmenu-apps-container">
+				<div data-jc="repeater__user.apps__if:!value.internal">
+					<script type="text/html">
+						<div class="app{{ if !online }} app-offline{{ fi }}{{ responsive | responsive }}" data-id="{{ id }}" data-search="{{ title }}" draggable="true">
+							<span><i class="fa fa-power-off"></i>@(OFFLINE)</span>
+							<i class="appclose fa fa-times hidden exec" data-exec="Dashboard/close" data-id="{{ id }}"></i>
+							<b class="appunread{{ if !countnotifications }} hidden{{ fi }}" data-id="{{ id }}">{{ countnotifications }}</b>
+							<b class="appbadge{{ if !countbadges }} hidden{{ fi }}" data-id="{{ id }}"><i class="fa fa-circle"></i></b>
+							<div class="app-container">
+								<div class="app-icon"><i class="fa fa-{{ icon }}"></i></div>
+								<div class="app-meta">{{ title }}</div>
+							</div>
+						</div>
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div data-jc="importer__common.form__if:screenshot;url:/forms/screenshot.html"></div>
+
+	<script>
+
+		function togglemenu(value, path, el) {
+			if (value) {
+				el.rclass('hidden');
+				setTimeout(function() {
+					el.aclass('startmenu-visible');
+				}, 10);
+			} else {
+				el.rclass('startmenu-visible');
+				setTimeout(function() {
+					el.aclass('hidden');
+				}, 300);
+			}
+		}
+
+		$('body').on('click', function(e) {
+			e.target.nodeName === 'BODY' && common.startmenu && TOGGLE('common.startmenu');
+		});
+
+		function mainmenu(el) {
+			SET('common.startmenuapps', true);
+			TOGGLE('common.startmenu');
+		}
+
+		WATCH('dashboard.apps', function() {
+			EXEC('Dashboard/saveState');
+		});
+
+		WATCH('common.notifications', function(path, value) {
+			value && refresh_notifications();
+		});
+
+		function refresh_notifications() {
+			user.countnotifications && SETTER('websocket', 'send', { TYPE: 'notifications' });
+			user.countnotifications = 0;
+		}
+
+		function internalapp(el) {
+			var id = el.attr('data-id');
+
+			WSOPEN.id = id;
+			WSOPEN.href = null;
+
+			var iframe = dashboard.apps.findItem('id', id);
+			if (iframe)
+				SETTER('processes', 'maximize', id);
+			else
+				SETTER('websocket', 'send', WSOPEN);
+
+			common.startmenu && SET('common.startmenu', false);
+		}
+
+		function internalreset() {
+			common.startmenu && SET('common.startmenu', false);
+			SETTER('processes', 'resetsize');
+		}
+
+		function internallogoff() {
+			location.href = '/logoff/';
+		}
+
+		ON('message', function(message) {
+			switch (message.TYPE) {
+				case 'open':
+					message.body.internal = user.apps.findItem('id', message.body.id);
+					message.body.progress = 0;
+					dashboard.apps.push(message.body);
+					SET('dashboard.current', message.body);
+					$('.appunread[data-id="{0}"]'.format(message.body.id)).aclass('hidden');
+					$('.appbadge[data-id="{0}"]'.format(message.body.id)).aclass('hidden');
+					SETTER('processes', 'emitevent', 'app.open', message.body.id);
+					break;
+				case 'logoff':
+					COOKIES.set('@{'%cookie'}', '', '-1 day');
+					location.href = '/';
+					break;
+				case 'profile':
+					message.body.apps.quicksort('title');
+					SET('user', message.body);
+					EXEC('Dashboard/sync');
+					EXEC('Dashboard/init');
+					SET('common.startmenusearch', '');
+					break;
+				case 'notifications':
+					// take max. 50
+					var arr = PARSE(message.body);
+					arr && arr.length && SETTER('notificationspanel', 'append', arr.take(50));
+					break;
+				case 'notify':
+					var tmp = message.body;
+					SET('user.countnotifications', tmp.count);
+					if (tmp.app.id) {
+						$('.appunread[data-id="{0}"]'.format(tmp.app.id)).html(tmp.app.count).tclass('hidden', !tmp.app.count);
+						$('.appbadge[data-id="{0}"]'.format(tmp.app.id)).tclass('hidden', !tmp.app.badges);
+					}
+					user.countnotifications && user.sounds && SETTER('audio', 'play', '/sounds/beep.mp3');
+					common.notifications && refresh_notifications();
+					break;
+			}
+		});
+
+		var LOADINGSKIP = true;
+
+		ON('online', function(is) {
+			if (LOADINGSKIP)
+				LOADINGSKIP = false;
+			else
+				SETTER('loading', is ? 'hide' : 'show');
+		});
+
+		$(document).on('dblclick', '.appprocess', function() {
+			if (user.sa) {
+				var id = $(this).attrd('id');
+				setTimeout(function() {
+					SETTER('processes', 'reload', id);
+				}, 500);
+			}
+		});
+
+		var dashboard = {};
+		var WSOPEN = { TYPE: 'open' };
+
+		dashboard.current = null;
+		dashboard.apps = [];
+
+		$(document).on('click', '.app', function() {
+			var el = $(this);
+
+			if (el.hclass('app-offline') || el.hclass('app-disabled'))
+				return;
+
+			var id = el.attr('data-id');
+
+			WSOPEN.id = id;
+			WSOPEN.href = null;
+
+			var iframe = dashboard.apps.findItem('id', id);
+			if (iframe)
+				SETTER('processes', 'maximize', id);
+			else
+				SETTER('websocket', 'send', WSOPEN);
+
+			common.startmenu && SET('common.startmenu', false);
+		});
+
+		PLUGIN('Dashboard', function(self) {
+
+			self.hidemenu = function() {
+				SET('common.startmenu', false);
+			};
+
+			self.open = function(el) {
+				if (common.page !== 'dashboard')
+					SET('common.page', 'dashboard');
+				self.hidemenu();
+				var id = el.attrd('id');
+				SETTER('processes', 'maximize', id);
+			};
+
+			self.close = function(el, e) {
+				e.stopPropagation();
+				e.preventDefault();
+				self.hidemenu();
+				SETTER('processes', 'kill', el.attrd('id'));
+			};
+
+			self.navigate = function(el) {
+
+				var id = el.attrd('id');
+				var data = decodeURIComponent(el.attrd('data'));
+
+				var app = user.apps.findItem('id', id);
+				if (!app)
+					return;
+
+				var iframe = dashboard.apps.findItem('id', app.id);
+				if (iframe) {
+					SETTER('processes', 'sendnotifydata', app.id, data);
+				} else {
+					WSOPEN.id = app.id;
+					WSOPEN.href = app.url;
+					app.notifydata = data;
+					SETTER('websocket', 'send', WSOPEN);
+				}
+			};
+
+			self.sync = function() {
+				var is = false;
+				dashboard.apps = dashboard.apps.remove(function(item) {
+					var app = user.apps.findItem('id', item.id);
+					var rem = app == null || !app.online;
+					if (rem) {
+						SETTER('processes', 'kill', item.id);
+						is = true;
+					} else {
+						//app.internal = app;
+						//app.internal.running = item.running;
+						app.running = item.running;
+					}
+					return rem;
+				});
+
+				$('.appclose').each(function() {
+					var el = $(this);
+					el.tclass('hidden', dashboard.apps.findIndex('id', el.attrd('id')) === -1);
+				});
+
+				is && UPDATE('dashboard.apps');
+			};
+
+			self.saveState = function() {
+				CACHE('running', dashboard.apps.map(FN('n => n.id')), '1 year');
+			};
+
+			self.init = function() {
+				self.init = null;
+				var running = CACHE('running');
+				if (running && running.length) {
+					running.wait(function(id, next) {
+						var app = user.apps.findItem('id', id);
+						if (app) {
+							var el = $('.app[data-id="{0}"]'.format(app.id));
+							if (!el.length)
+								el = $('.internal[data-id="{0}"]'.format(app.id));
+							if (el.length) {
+								internalapp(el);
+								setTimeout(next, 800);
+								return;
+							}
+						}
+						next();
+					});
+				} else
+					SET('common.startmenu', true, 500);
+			};
+
+		});
+
+		SETTER(true, 'shortcuts', 'register', 'F1', function() {
+			var items = [];
+
+			for (var i = 0; i < user.apps.length; i++) {
+				var app = user.apps[i];
+				items.push({ TYPE: 'app', id: app.id, name: app.name, icon: app.icon });
+			}
+
+			items.push({ name: '@(Reset windows)', icon: 'window-restore', TYPE: 'reset' });
+			items.push({ name: '@(Sign out)', icon: 'power-off', TYPE: 'logoff' });
+
+			SETTER('features', 'show', items, function(item) {
+				switch (item.TYPE) {
+					case 'app':
+						internalapp($('.app[data-id="{0}"],.internal[data-id="{0}"]'.format(item.id)));
+						break;
+					case 'logoff':
+						internallogoff();
+						break;
+					case 'reset':
+						internalreset();
+						break;
+				}
+			}, true);
+
+		}, true);
+
+		SETTER(true, 'shortcuts', 'register', 'alt+w,cmd+w,alt+F3', function(e) {
+
+			if (dashboard.current) {
+				SETTER('processes', 'kill', dashboard.current.id);
+				dashboard.current = null;
+			} else if (dashboard.apps.length)
+				SETTER('processes', 'kill', dashboard.apps[0].id);
+
+			e.preventDefault();
+			e.stopPropagation();
+		}, true);
+
+	</script>
+
+</body>
+</html>
