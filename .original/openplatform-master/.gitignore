@@ -1,0 +1,6 @@
+node_modules/
+tmp/
+logs/
+databases/
+debug.pid
+sftp-config.json

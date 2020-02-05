@@ -1,0 +1,7 @@
+@{layout('~mails/layout')}
+
+<div style="text-align:center;padding:10px 0">
+	<div style="color:#606060;border-bottom:1px solid #E0E0E0;padding-bottom:15px;margin-bottom:15px">@(You have <b>unread &#128276; notifications</b> in @{'%name'}. You need to sign-in to @{'%name'} and then you can read all notifications.)</div>
+	<div style="margin:10px 0 3px">@(Login page)</div>
+	<div style="overflow:hidden;font-size:18px"><a href="@{'%url'}">@{'%url'}</a></div>
+</div>
